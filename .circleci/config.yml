@@ -1,0 +1,11 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: microsoft/aspnetcore-build
+    steps:
+      - checkout
+      - dotnet restore
+      - dotnet build
+      - dotnet test
+      
