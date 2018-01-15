@@ -6,6 +6,6 @@ jobs:
     steps:
       - checkout
       - run: dotnet restore
-      - run: dotnet build
       - run: dotnet test KnowYourLimits.UnitTests/KnowYourLimits.UnitTests.csproj
-      
+      - run: dotnet build -c release
+ 
