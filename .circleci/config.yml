@@ -11,4 +11,4 @@ jobs:
       - run: dotnet restore
       - run: dotnet test KnowYourLimits.UnitTests/KnowYourLimits.UnitTests.csproj
       - run: dotnet build -c release
-     
+      - run: nuget push -ApiKey NUGET_KEY KnowYourLimits.AspNetCore/bin/Release/KnowYourLimits.AspNetCore.1.0.0.nupkg
