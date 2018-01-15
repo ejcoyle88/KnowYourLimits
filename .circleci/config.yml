@@ -7,5 +7,5 @@ jobs:
       - checkout
       - run: dotnet restore
       - run: dotnet build
-      - run: dotnet test
+      - run: dotnet test ~/KnowYourLimits.UnitTests/KnowYourLimits.UnitTests.csproj
       
