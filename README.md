@@ -7,7 +7,11 @@ Currently provides a middleware:
 Available rate limiting strategies:
 - Leaky Bucket
 
+When a client exceeds their request limit, a `429 Too Many Requests` status will be returned.
+
 # Setup
+The middleware should be attached to the application as high in the order as possible, to intercept requests early.
+
 Pass your rate limiting strategy into the middleware:
 
 ```cs
