@@ -1,0 +1,13 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: microsoft/aspnetcore-build
+    branches:
+      only:
+        - master
+    steps:
+      - checkout
+      - run: dotnet restore
+      - run: dotnet test KnowYourLimits.UnitTests/KnowYourLimits.UnitTests.csproj
+      - run: dotnet build -c release

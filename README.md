@@ -1,3 +1,5 @@
+[![CircleCI](https://img.shields.io/circleci/project/github/ejcoyle88/KnowYourLimits.svg)]()
+
 # KnowYourLimits
 A rate limiting library for .Net projects.
 
