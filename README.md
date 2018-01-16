@@ -14,13 +14,14 @@ When a client exceeds their request limit, a `429 Too Many Requests` status will
 # Setup
 The middleware should be attached to the application as high in the order as possible, to intercept requests early.
 
-Pass your rate limiting strategy into the middleware:
+For example, to configure the rate limiter to allow 4 requests per second, with a maximum of 100 requests, see below:
 
 ```cs
 var rateLimitingConfiguration = new LeakyBucketConfiguration
 {
-  MaxRequests = 10,
-  LeakRate = TimeSpan.FromHours(1),
+  MaxRequests = 100,
+  LeakRate = TimeSpan.FromSeconds(1),
+  LeakAmount = 4,
   IdentityProvider = new CustomIdentityProvider() // If not set, defaults to using the remote address
 };
 
