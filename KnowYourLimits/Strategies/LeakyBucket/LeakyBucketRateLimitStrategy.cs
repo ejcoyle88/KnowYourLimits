@@ -99,21 +99,8 @@ namespace KnowYourLimits.Strategies.LeakyBucket
             {
                 return;
             }
-
-            if (identity.LastLeak == null)
-            {
-                identity.LastLeak = DateTime.UtcNow;
-            }
-
-            var nextLeak = identity.LastLeak + _configuration.LeakRate;
-
-            if (DateTime.UtcNow <= nextLeak)
-            {
-                return;
-            }
-
-            identity.LastLeak = DateTime.UtcNow;
-            identity.Intervals = identity.Intervals.Where(x => x.Start > identity.LastLeak).ToList();
+            
+            identity.Intervals = identity.Intervals.Where(x => x.Start + _configuration.LeakRate > DateTime.UtcNow).ToList();
         }
 
         private int GetRemainingAllowance(LeakyBucketClientIdentity identity)
@@ -123,8 +110,7 @@ namespace KnowYourLimits.Strategies.LeakyBucket
 
         private LeakyBucketInterval GetCurrentInterval(LeakyBucketClientIdentity identity)
         {
-            var existingInterval = identity.Intervals.SingleOrDefault(x =>
-                x.Start < DateTime.UtcNow && x.Start + _configuration.LeakRate > DateTime.UtcNow);
+            var existingInterval = identity.Intervals.SingleOrDefault(x => x.Start == DateTime.UtcNow);
 
             if (existingInterval == null)
             {

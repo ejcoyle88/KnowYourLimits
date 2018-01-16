@@ -9,6 +9,5 @@ namespace KnowYourLimits.Strategies.LeakyBucket
         public bool Equals(IClientIdentity other) => other.UniqueIdentifier == UniqueIdentifier;
         public string UniqueIdentifier { get; set; }
         public List<LeakyBucketInterval> Intervals = new List<LeakyBucketInterval>();
-        public DateTime? LastLeak { get; set; }
     }
 }
