@@ -1,4 +1,6 @@
-﻿using KnowYourLimits.Identity;
+﻿using System;
+using System.Threading.Tasks;
+using KnowYourLimits.Identity;
 using KnowYourLimits.Strategies;
 using Microsoft.AspNetCore.Builder;
 
@@ -21,15 +23,10 @@ namespace KnowYourLimits.AspNetCore
                     provider.Context = context;
                 }
 
-                if (rateLimitStrategy.HasRemainingAllowance())
-                {
-                    rateLimitStrategy.ReduceAllowanceBy(1);
-                    await next.Invoke();
-                }
-                else
-                {
-                    context.Response.StatusCode = 429;
-                }
+                async Task OnHasRequestsRemaining() => await next.Invoke();
+                async Task OnNoRequestsRemaining() => context.Response.StatusCode = 429;
+
+                await rateLimitStrategy.OnRequest(OnHasRequestsRemaining, OnNoRequestsRemaining);
             });
         }
     }

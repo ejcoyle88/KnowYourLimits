@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Elliot Coyle</Authors>
+    <Company />
+    <Product>KnowYourLimits</Product>
+    <Description>A collection of rate limiting strategies.</Description>
+    <PackageProjectUrl>https://github.com/ejcoyle88/KnowYourLimits</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ejcoyle88/KnowYourLimits</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
 </Project>

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using KnowYourLimits.Identity;
 
 namespace KnowYourLimits.Strategies
@@ -60,5 +61,7 @@ namespace KnowYourLimits.Strategies
         /// <param name="requests">The number of requests to increase the allowance by</param>
         /// <returns>The new remaining allowance</returns>
         int IncreaseAllowanceBy(IClientIdentity identity, int requests);
+
+        Task OnRequest(Func<Task> onHasRequestsRemaining, Func<Task> onNoRequestsRemaining);
     }
 }

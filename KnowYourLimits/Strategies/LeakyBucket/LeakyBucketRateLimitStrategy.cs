@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using KnowYourLimits.Identity;
 
 namespace KnowYourLimits.Strategies.LeakyBucket
@@ -63,6 +64,19 @@ namespace KnowYourLimits.Strategies.LeakyBucket
         {
             var leakyIdentity = CastIdentity(identity);
             return UpdateCurrentInterval(leakyIdentity, -requests);
+        }
+
+        public async Task OnRequest(Func<Task> onHasRequestsRemaining, Func<Task> onNoRequestsRemaining)
+        {
+            if (HasRemainingAllowance())
+            {
+                ReduceAllowanceBy(1);
+                await onHasRequestsRemaining();
+            }
+            else
+            {
+                await onNoRequestsRemaining();
+            }
         }
 
         public int IncreaseAllowanceBy(int requests)

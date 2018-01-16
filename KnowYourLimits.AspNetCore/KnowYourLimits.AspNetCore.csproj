@@ -7,6 +7,9 @@
     <Company />
     <Product />
     <Description>A rate limiting middleware for AspNetCore.</Description>
+    <PackageProjectUrl>https://github.com/ejcoyle88/KnowYourLimits</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ejcoyle88/KnowYourLimits</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>

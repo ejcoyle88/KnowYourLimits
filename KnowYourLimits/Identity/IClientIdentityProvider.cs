@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace KnowYourLimits.Identity
+﻿namespace KnowYourLimits.Identity
 {
     /// <summary>
     /// Fetches a <see cref="IClientIdentity"/> for the current request.
