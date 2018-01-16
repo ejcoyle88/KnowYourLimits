@@ -97,6 +97,7 @@ namespace KnowYourLimits.UnitTests
             {
                 MaxRequests = 5,
                 LeakRate = TimeSpan.FromSeconds(5),
+                LeakAmount = 5,
                 IdentityProvider = identityProvider
             };
 
@@ -107,6 +108,46 @@ namespace KnowYourLimits.UnitTests
 
             Thread.Sleep(TimeSpan.FromSeconds(6));
             Assert.Equal(true, rateLimiter.HasRemainingAllowance());
+        }
+
+        [Fact]
+        public void GivenWeMakeRequestsAtASteadyRate_WhenThatRateIsJustAboveTheAllowed_ThenWeShouldApproachTheLimit()
+        {
+            var identityProvider = new PredictableClientIdentityProvider<LeakyBucketClientIdentity>(
+                new LeakyBucketClientIdentity
+                {
+                    UniqueIdentifier = "test"
+                });
+
+            var config = new LeakyBucketConfiguration
+            {
+                MaxRequests = 40,
+                LeakRate = TimeSpan.FromSeconds(1),
+                LeakAmount = 2,
+                IdentityProvider = identityProvider
+            };
+
+            var rateLimiter = new LeakyBucketRateLimitStrategy(config);
+
+            rateLimiter.ReduceAllowanceBy(3);
+            Assert.Equal(true, rateLimiter.HasRemainingAllowance());
+            Assert.Equal(37, rateLimiter.GetRemainingAllowance());
+            Thread.Sleep(TimeSpan.FromSeconds(1));
+
+            rateLimiter.ReduceAllowanceBy(3);
+            Assert.Equal(true, rateLimiter.HasRemainingAllowance());
+            Assert.Equal(36, rateLimiter.GetRemainingAllowance());
+            Thread.Sleep(TimeSpan.FromSeconds(1));
+
+            rateLimiter.ReduceAllowanceBy(3);
+            Assert.Equal(true, rateLimiter.HasRemainingAllowance());
+            Assert.Equal(35, rateLimiter.GetRemainingAllowance());
+            Thread.Sleep(TimeSpan.FromSeconds(1));
+
+            rateLimiter.ReduceAllowanceBy(3);
+            Assert.Equal(true, rateLimiter.HasRemainingAllowance());
+            Assert.Equal(34, rateLimiter.GetRemainingAllowance());
+            Thread.Sleep(TimeSpan.FromSeconds(1));
         }
 
         [Fact]

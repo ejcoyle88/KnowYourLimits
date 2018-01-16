@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using KnowYourLimits.Identity;
 
@@ -52,7 +51,8 @@ namespace KnowYourLimits.Strategies.LeakyBucket
         public int ReduceAllowanceBy(IClientIdentity identity, int requests)
         {
             var leakyIdentity = CastIdentity(identity);
-            return UpdateCurrentInterval(leakyIdentity, requests);
+            leakyIdentity.RequestCount += requests;
+            return leakyIdentity.RequestCount;
         }
 
         public int ReduceAllowanceBy(int requests)
@@ -63,7 +63,8 @@ namespace KnowYourLimits.Strategies.LeakyBucket
         public int IncreaseAllowanceBy(IClientIdentity identity, int requests)
         {
             var leakyIdentity = CastIdentity(identity);
-            return UpdateCurrentInterval(leakyIdentity, -requests);
+            leakyIdentity.RequestCount -= requests;
+            return leakyIdentity.RequestCount;
         }
 
         public async Task OnRequest(Func<Task> onHasRequestsRemaining, Func<Task> onNoRequestsRemaining)
@@ -99,34 +100,22 @@ namespace KnowYourLimits.Strategies.LeakyBucket
             {
                 return;
             }
+
+            if (identity.LastLeak == null) identity.LastLeak = DateTime.UtcNow;
+
+            if (identity.LastLeak >= DateTime.UtcNow || 
+                identity.LastLeak + _configuration.LeakRate > DateTime.UtcNow)
+            {
+                return;
+            }
             
-            identity.Intervals = identity.Intervals.Where(x => x.Start + _configuration.LeakRate > DateTime.UtcNow).ToList();
+            identity.RequestCount -= _configuration.LeakAmount;
+            identity.LastLeak = DateTime.UtcNow;
         }
 
         private int GetRemainingAllowance(LeakyBucketClientIdentity identity)
         {
-            return _configuration.MaxRequests - identity.Intervals.Sum(x => x.Requests);
-        }
-
-        private LeakyBucketInterval GetCurrentInterval(LeakyBucketClientIdentity identity)
-        {
-            var existingInterval = identity.Intervals.SingleOrDefault(x => x.Start == DateTime.UtcNow);
-
-            if (existingInterval == null)
-            {
-                var newInterval = new LeakyBucketInterval(DateTime.UtcNow);
-                identity.Intervals.Add(newInterval);
-                return newInterval;
-            }
-
-            return existingInterval;
-        }
-
-        private int UpdateCurrentInterval(LeakyBucketClientIdentity identity, int requestModifier)
-        {
-            var currentInterval = GetCurrentInterval(identity);
-            currentInterval.Requests += requestModifier;
-            return currentInterval.Requests;
+            return _configuration.MaxRequests - identity.RequestCount;
         }
     }
 }
