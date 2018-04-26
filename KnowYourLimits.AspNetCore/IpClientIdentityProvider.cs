@@ -6,6 +6,11 @@ using Microsoft.AspNetCore.Http.Features;
 
 namespace KnowYourLimits.AspNetCore
 {
+    public interface IProvider
+    {
+        HttpContext Context { get; set; }
+    }
+
     public class IpClientIdentityProvider<TClientIdentity> : IClientIdentityProvider<TClientIdentity>
         where TClientIdentity : IClientIdentity, new()
     {
