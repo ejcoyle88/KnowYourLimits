@@ -6,7 +6,12 @@ using Microsoft.AspNetCore.Http.Features;
 
 namespace KnowYourLimits.AspNetCore
 {
-    public class IpClientIdentityProvider<TClientIdentity> : IClientIdentityProvider<TClientIdentity>
+    public interface IProvider
+    {
+        HttpContext Context { get; set; }
+    }
+
+    public class IpClientIdentityProvider<TClientIdentity> : IHttpContextIdentityProvider<TClientIdentity>
         where TClientIdentity : IClientIdentity, new()
     {
         private readonly ConcurrentDictionary<string, TClientIdentity> _clientIdentities =

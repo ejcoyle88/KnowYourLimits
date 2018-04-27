@@ -36,31 +36,31 @@ namespace KnowYourLimits.Strategies.LeakyBucket
             return HasRemainingAllowance(_configuration.IdentityProvider.GetIdentityForCurrentRequest());
         }
 
-        public int GetRemainingAllowance(IClientIdentity identity)
+        public long GetRemainingAllowance(IClientIdentity identity)
         {
             var leakyIdentity = CastIdentity(identity);
             Leak(leakyIdentity);
             return GetRemainingAllowance(leakyIdentity);
         }
 
-        public int GetRemainingAllowance()
+        public long GetRemainingAllowance()
         {
             return GetRemainingAllowance(_configuration.IdentityProvider.GetIdentityForCurrentRequest());
         }
 
-        public int ReduceAllowanceBy(IClientIdentity identity, int requests)
+        public long ReduceAllowanceBy(IClientIdentity identity, long requests)
         {
             var leakyIdentity = CastIdentity(identity);
             leakyIdentity.RequestCount += requests;
             return leakyIdentity.RequestCount;
         }
 
-        public int ReduceAllowanceBy(int requests)
+        public long ReduceAllowanceBy(long requests)
         {
             return ReduceAllowanceBy(_configuration.IdentityProvider.GetIdentityForCurrentRequest(), requests);
         }
 
-        public int IncreaseAllowanceBy(IClientIdentity identity, int requests)
+        public long IncreaseAllowanceBy(IClientIdentity identity, long requests)
         {
             var leakyIdentity = CastIdentity(identity);
             leakyIdentity.RequestCount -= requests;
@@ -80,7 +80,7 @@ namespace KnowYourLimits.Strategies.LeakyBucket
             }
         }
 
-        public int IncreaseAllowanceBy(int requests)
+        public long IncreaseAllowanceBy(long requests)
         {
             return IncreaseAllowanceBy(_configuration.IdentityProvider.GetIdentityForCurrentRequest(), requests);
         }
@@ -108,12 +108,15 @@ namespace KnowYourLimits.Strategies.LeakyBucket
             {
                 return;
             }
-            
-            identity.RequestCount -= _configuration.LeakAmount;
+
+            var timeSinceLastLeak = DateTime.UtcNow - identity.LastLeak.Value;
+            var leaksSinceLast = timeSinceLastLeak.Ticks / _configuration.LeakRate.Ticks;
+            var rawLeakTotal = _configuration.LeakAmount * leaksSinceLast;
+            identity.RequestCount -= rawLeakTotal >= identity.RequestCount ? identity.RequestCount : rawLeakTotal;
             identity.LastLeak = DateTime.UtcNow;
         }
 
-        private int GetRemainingAllowance(LeakyBucketClientIdentity identity)
+        private long GetRemainingAllowance(LeakyBucketClientIdentity identity)
         {
             return _configuration.MaxRequests - identity.RequestCount;
         }
