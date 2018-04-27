@@ -11,7 +11,7 @@ namespace KnowYourLimits.AspNetCore
         HttpContext Context { get; set; }
     }
 
-    public class IpClientIdentityProvider<TClientIdentity> : IClientIdentityProvider<TClientIdentity>
+    public class IpClientIdentityProvider<TClientIdentity> : IClientIdentityProvider<TClientIdentity>, IHttpContextIdentityProvider
         where TClientIdentity : IClientIdentity, new()
     {
         private readonly ConcurrentDictionary<string, TClientIdentity> _clientIdentities =

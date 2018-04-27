@@ -13,12 +13,12 @@ namespace KnowYourLimits.AspNetCore
         {
             if (rateLimitStrategy.IdentityProvider == null)
             {
-                rateLimitStrategy.IdentityProvider = new IpClientIdentityHttpContextProvider<TClientIdentity>();
+                rateLimitStrategy.IdentityProvider = new IpClientIdentityProvider<TClientIdentity>();
             }
 
             applicationBuilder.Use(async (context, next) =>
             {
-                if (rateLimitStrategy.IdentityProvider is IHttpContextProvider provider)
+                if (rateLimitStrategy.IdentityProvider is IHttpContextIdentityProvider provider)
                 {
                     provider.Context = context;
                 }
