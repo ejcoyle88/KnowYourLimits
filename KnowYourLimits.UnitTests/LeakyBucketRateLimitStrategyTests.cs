@@ -195,7 +195,7 @@ namespace KnowYourLimits.UnitTests
         [InlineData(10, 2, 4, 0, 5)]
         [InlineData(10, 2, 4, 1, 7)]
         [InlineData(5, 1, 4, 0, 0)]
-        public async Task GivenThereAreNoRequestsLeft_AfterALongInterval_TheCorrectNumberOfRequestsShouldBeAvailable(int maxRequests, int leakAmount, int requestCount, int waitSeconds, int expected)
+        public async Task GivenAConfiguration_AfterALongInterval_TheCorrectNumberOfRequestsShouldBeAvailable(int maxRequests, int leakAmount, int requestCount, int waitSeconds, int expected)
         {
             var identityProvider = new PredictableClientIdentityProvider<LeakyBucketClientIdentity>(
                 new LeakyBucketClientIdentity
