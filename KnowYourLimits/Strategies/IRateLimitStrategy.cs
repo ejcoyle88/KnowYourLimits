@@ -28,39 +28,39 @@ namespace KnowYourLimits.Strategies
         /// Gets the remaining allowance for the current identity.
         /// </summary>
         /// <returns>The remaining allowance</returns>
-        int GetRemainingAllowance();
+        long GetRemainingAllowance();
         /// <summary>
         /// Gets the remaining allowance for the <param name="identity"></param>.
         /// </summary>
         /// <param name="identity">The identity of the client</param>
         /// <returns>The remaining allowance</returns>
-        int GetRemainingAllowance(IClientIdentity identity);
+        long GetRemainingAllowance(IClientIdentity identity);
         /// <summary>
         /// Reduces the current identities available allowance by <param name="requests"></param>.
         /// </summary>
         /// <param name="requests">The number of requests to reduce the allowance by</param>
         /// <returns>The new remaining allowance</returns>
-        int ReduceAllowanceBy(int requests);
+        long ReduceAllowanceBy(long requests);
         /// <summary>
         /// Reduces the <param name="identity"></param> available allowance by <param name="requests"></param>.
         /// </summary>
         /// <param name="identity">The identity of the client</param>
         /// <param name="requests">The number of requests to reduce the allowance by</param>
         /// <returns>The new remaining allowance</returns>
-        int ReduceAllowanceBy(IClientIdentity identity, int requests);
+        long ReduceAllowanceBy(IClientIdentity identity, long requests);
         /// <summary>
         /// Increases the current identities available allowance by <param name="requests"></param>.
         /// </summary>
         /// <param name="requests">The number of requests to increase the allowance by</param>
         /// <returns>The new remaining allowance</returns>
-        int IncreaseAllowanceBy(int requests);
+        long IncreaseAllowanceBy(long requests);
         /// <summary>
         /// Increases the <param name="identity"></param> available allowance by <param name="requests"></param>.
         /// </summary>
         /// <param name="identity">The identity of the client</param>
         /// <param name="requests">The number of requests to increase the allowance by</param>
         /// <returns>The new remaining allowance</returns>
-        int IncreaseAllowanceBy(IClientIdentity identity, int requests);
+        long IncreaseAllowanceBy(IClientIdentity identity, long requests);
 
         Task OnRequest(Func<Task> onHasRequestsRemaining, Func<Task> onNoRequestsRemaining);
     }

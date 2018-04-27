@@ -187,5 +187,42 @@ namespace KnowYourLimits.UnitTests
             Assert.Equal(5, successfulRequests);
             Assert.Equal(1, failedRequests);
         }
+
+        [Fact]
+        public async Task GivenThereAreNoRequestsLeft_AfterALongInterval_TheCorrectNumberOfRequestsShouldBeAvailable()
+        {
+            var identityProvider = new PredictableClientIdentityProvider<LeakyBucketClientIdentity>(
+                new LeakyBucketClientIdentity
+                {
+                    UniqueIdentifier = "test"
+                });
+
+            var config = new LeakyBucketConfiguration
+            {
+                MaxRequests = 5,
+                LeakRate = TimeSpan.FromSeconds(1),
+                LeakAmount = 1,
+                IdentityProvider = identityProvider
+            };
+
+            var rateLimiter = new LeakyBucketRateLimitStrategy(config);
+
+            var successfulRequests = 0;
+            var failedRequests = 0;
+
+            async Task OnSuccessfulRequest() => successfulRequests++;
+            async Task OnFailedRequest() => failedRequests++;
+
+            await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
+            await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
+            await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
+            await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
+            await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
+            Thread.Sleep(TimeSpan.FromSeconds(6));
+
+            await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
+
+            Assert.Equal(4, rateLimiter.GetRemainingAllowance());
+        }
     }
 }
