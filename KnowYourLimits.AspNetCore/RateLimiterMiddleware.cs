@@ -18,7 +18,7 @@ namespace KnowYourLimits.AspNetCore
 
             applicationBuilder.Use(async (context, next) =>
             {
-                if (rateLimitStrategy.IdentityProvider is IHttpContextIdentityProvider provider)
+                if (rateLimitStrategy.IdentityProvider is IHttpContextIdentityProvider<TClientIdentity> provider)
                 {
                     provider.Context = context;
                 }

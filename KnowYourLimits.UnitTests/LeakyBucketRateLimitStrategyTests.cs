@@ -188,8 +188,14 @@ namespace KnowYourLimits.UnitTests
             Assert.Equal(1, failedRequests);
         }
 
-        [Fact]
-        public async Task GivenThereAreNoRequestsLeft_AfterALongInterval_TheCorrectNumberOfRequestsShouldBeAvailable()
+        [Theory]
+        [InlineData(5, 1, 5, 6, 4)]
+        [InlineData(5, 1, 4, 2, 2)]
+        [InlineData(5, 1, 4, 1, 1)]
+        [InlineData(10, 2, 4, 0, 5)]
+        [InlineData(10, 2, 4, 1, 7)]
+        [InlineData(5, 1, 4, 0, 0)]
+        public async Task GivenThereAreNoRequestsLeft_AfterALongInterval_TheCorrectNumberOfRequestsShouldBeAvailable(int maxRequests, int leakAmount, int requestCount, int waitSeconds, int expected)
         {
             var identityProvider = new PredictableClientIdentityProvider<LeakyBucketClientIdentity>(
                 new LeakyBucketClientIdentity
@@ -199,9 +205,9 @@ namespace KnowYourLimits.UnitTests
 
             var config = new LeakyBucketConfiguration
             {
-                MaxRequests = 5,
+                MaxRequests = maxRequests,
                 LeakRate = TimeSpan.FromSeconds(1),
-                LeakAmount = 1,
+                LeakAmount = leakAmount,
                 IdentityProvider = identityProvider
             };
 
@@ -213,16 +219,19 @@ namespace KnowYourLimits.UnitTests
             async Task OnSuccessfulRequest() => successfulRequests++;
             async Task OnFailedRequest() => failedRequests++;
 
-            await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
-            await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
-            await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
-            await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
-            await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
-            Thread.Sleep(TimeSpan.FromSeconds(6));
+            for (var i = 0; i < requestCount; i++)
+            {
+                await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
+            }
+
+            if (waitSeconds > 0)
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(waitSeconds));
+            }
 
             await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
 
-            Assert.Equal(4, rateLimiter.GetRemainingAllowance());
+            Assert.Equal(expected, rateLimiter.GetRemainingAllowance());
         }
     }
 }
