@@ -32,11 +32,18 @@ namespace KnowYourLimits.AspNetCore
                 if (rateLimitStrategy.ShouldAddHeaders())
                 {
                     var headers = rateLimitStrategy.GetResponseHeaders();
-                    foreach (var header in headers)
+                    context.Response.OnStarting(() =>
                     {
-                        context.Response.Headers.Add(header.Key, new StringValues(header.Value));
-                    }
+                        foreach (var header in headers)
+                        {
+                            context.Response.Headers.Add(header.Key, new StringValues(header.Value));
+                        }
+
+                        return Task.FromResult(0);
+                    });
                 }
+
+                await next();
             });
         }
     }
