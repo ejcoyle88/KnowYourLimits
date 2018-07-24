@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using KnowYourLimits.Identity;
 
@@ -71,13 +72,37 @@ namespace KnowYourLimits.Strategies.LeakyBucket
         {
             if (HasRemainingAllowance())
             {
-                ReduceAllowanceBy(1);
+                ReduceAllowanceBy(_configuration.RequestCost);
                 await onHasRequestsRemaining();
             }
             else
             {
                 await onNoRequestsRemaining();
             }
+        }
+
+        public Dictionary<string, string> GetResponseHeaders()
+        {
+            return GetResponseHeaders(_configuration.IdentityProvider.GetIdentityForCurrentRequest());
+        }
+
+        public Dictionary<string, string> GetResponseHeaders(IClientIdentity identity)
+        {
+            string GetHeaderName(string hN) => $"{_configuration.HeaderPrefix}{hN}";
+
+            return new Dictionary<string, string>
+            {
+                { GetHeaderName("RateLimit-Remaining"), GetRemainingAllowance(identity).ToString() },
+                { GetHeaderName("RateLimit-LeakRate"), _configuration.LeakRate.ToString() },
+                { GetHeaderName("RateLimit-LeakAmount"), _configuration.LeakAmount.ToString() },
+                { GetHeaderName("RateLimit-BucketSize"), _configuration.MaxRequests.ToString() },
+                { GetHeaderName("RateLimit-Cost"), _configuration.RequestCost.ToString() }
+            };
+        }
+
+        public bool ShouldAddHeaders()
+        {
+            return _configuration.EnableHeaders;
         }
 
         public long IncreaseAllowanceBy(long requests)

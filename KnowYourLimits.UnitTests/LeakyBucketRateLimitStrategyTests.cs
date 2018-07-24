@@ -233,5 +233,71 @@ namespace KnowYourLimits.UnitTests
 
             Assert.Equal(expected, rateLimiter.GetRemainingAllowance());
         }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void GivenAConfiguration_WhenHeadersAreEnabled_ShouldReturnTheCorrectResponse(bool enableHeaders)
+        {
+            var identityProvider = new PredictableClientIdentityProvider<LeakyBucketClientIdentity>(
+                new LeakyBucketClientIdentity
+                {
+                    UniqueIdentifier = "test"
+                });
+
+            var config = new LeakyBucketConfiguration
+            {
+                MaxRequests = 2,
+                LeakRate = TimeSpan.FromSeconds(1),
+                LeakAmount = 1,
+                IdentityProvider = identityProvider,
+                EnableHeaders = enableHeaders
+            };
+
+            var rateLimiter = new LeakyBucketRateLimitStrategy(config);
+
+            Assert.Equal(enableHeaders, rateLimiter.ShouldAddHeaders());
+        }
+
+        [Theory]
+        [InlineData(40, 1, 2, 1)]
+        [InlineData(20, 5, 2, 1)]
+        public void GivenAConfiguration_WhenHeadersAreEnabled_ShouldReturnTheCorrectHeaders(long maxReq, long leakRateSec, long leakAmount, long reqCost)
+        {
+            var identityProvider = new PredictableClientIdentityProvider<LeakyBucketClientIdentity>(
+                new LeakyBucketClientIdentity
+                {
+                    UniqueIdentifier = "test"
+                });
+
+            var config = new LeakyBucketConfiguration
+            {
+                MaxRequests = maxReq,
+                LeakRate = TimeSpan.FromSeconds(leakRateSec),
+                LeakAmount = leakAmount,
+                RequestCost = reqCost,
+                IdentityProvider = identityProvider,
+                EnableHeaders = true
+            };
+
+            var rateLimiter = new LeakyBucketRateLimitStrategy(config);
+            var headers = rateLimiter.GetResponseHeaders();
+
+            Assert.Equal(headers["X-RateLimit-Remaining"], maxReq.ToString());
+            Assert.Equal(headers["X-RateLimit-LeakRate"], TimeSpan.FromSeconds(leakRateSec).ToString());
+            Assert.Equal(headers["X-RateLimit-LeakAmount"], leakAmount.ToString());
+            Assert.Equal(headers["X-RateLimit-BucketSize"], maxReq.ToString());
+            Assert.Equal(headers["X-RateLimit-Cost"], reqCost.ToString());
+
+            rateLimiter.ReduceAllowanceBy(1);
+
+            var headersAfterReduction = rateLimiter.GetResponseHeaders();
+
+            Assert.Equal(headersAfterReduction["X-RateLimit-Remaining"], (maxReq - 1).ToString());
+            Assert.Equal(headersAfterReduction["X-RateLimit-LeakRate"], TimeSpan.FromSeconds(leakRateSec).ToString());
+            Assert.Equal(headersAfterReduction["X-RateLimit-LeakAmount"], leakAmount.ToString());
+            Assert.Equal(headersAfterReduction["X-RateLimit-BucketSize"], maxReq.ToString());
+            Assert.Equal(headersAfterReduction["X-RateLimit-Cost"], reqCost.ToString());
+        }
     }
 }

@@ -5,7 +5,7 @@ using KnowYourLimits.Identity;
 
 namespace KnowYourLimits.Strategies.LeakyBucket
 {
-    public class LeakyBucketConfiguration
+    public class LeakyBucketConfiguration : BaseRateLimitConfiguration
     {
         /// <summary>
         /// The maximum number of requests that can be made.
@@ -19,6 +19,10 @@ namespace KnowYourLimits.Strategies.LeakyBucket
         /// The number of requests to leak.
         /// </summary>
         public long LeakAmount { get; set; }
+        /// <summary>
+        /// The cost of a request. Defaults to 1.
+        /// </summary>
+        public long RequestCost { get; set; } = 1;
         /// <summary>
         /// A provider of unique identifiers.
         /// </summary>

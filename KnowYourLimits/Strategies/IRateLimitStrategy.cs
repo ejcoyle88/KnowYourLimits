@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using KnowYourLimits.Identity;
 
@@ -61,7 +62,28 @@ namespace KnowYourLimits.Strategies
         /// <param name="requests">The number of requests to increase the allowance by</param>
         /// <returns>The new remaining allowance</returns>
         long IncreaseAllowanceBy(IClientIdentity identity, long requests);
-
+        /// <summary>
+        /// Handles the internals of the rate limiting strategy, calling a callback based on the result.
+        /// </summary>
+        /// <param name="onHasRequestsRemaining">A callback to be called when the rate limit has not been hit</param>
+        /// <param name="onNoRequestsRemaining">A callback to be called when the rate limit has been hit</param>
+        /// <returns></returns>
         Task OnRequest(Func<Task> onHasRequestsRemaining, Func<Task> onNoRequestsRemaining);
+        /// <summary>
+        /// Gets a set of headers that represents the rate limit status of the current identity.
+        /// </summary>
+        /// <returns>Headers</returns>
+        Dictionary<string, string> GetResponseHeaders();
+        /// <summary>
+        /// Gets a set of headers that represents the rate limit status of the <param name="identity"></param>.
+        /// </summary>
+        /// <param name="identity">The identity of the client</param>
+        /// <returns>Headers</returns>
+        Dictionary<string, string> GetResponseHeaders(IClientIdentity identity);
+        /// <summary>
+        /// True if headers describing the rate limiting strategy should be added to the response.
+        /// </summary>
+        /// <returns></returns>
+        bool ShouldAddHeaders();
     }
 }
