@@ -24,11 +24,6 @@ namespace KnowYourLimits.AspNetCore
                     provider.Context = context;
                 }
 
-                async Task OnHasRequestsRemaining() => await next.Invoke();
-                async Task OnNoRequestsRemaining() => context.Response.StatusCode = 429;
-
-                await rateLimitStrategy.OnRequest(OnHasRequestsRemaining, OnNoRequestsRemaining);
-
                 if (rateLimitStrategy.ShouldAddHeaders())
                 {
                     var headers = rateLimitStrategy.GetResponseHeaders();
@@ -43,7 +38,10 @@ namespace KnowYourLimits.AspNetCore
                     });
                 }
 
-                await next();
+                async Task OnHasRequestsRemaining() => await next.Invoke();
+                async Task OnNoRequestsRemaining() => context.Response.StatusCode = 429;
+
+                await rateLimitStrategy.OnRequest(OnHasRequestsRemaining, OnNoRequestsRemaining);
             });
         }
     }
