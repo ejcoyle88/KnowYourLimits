@@ -6,6 +6,7 @@ jobs:
     branches:
       only:
         - master
+        - dependabot/*
     steps:
       - checkout
       - run: dotnet restore
