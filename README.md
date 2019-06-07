@@ -24,7 +24,7 @@ var rateLimitingConfiguration = new LeakyBucketConfiguration
   LeakAmount = 4,
   IdentityProvider = new CustomIdentityProvider(), // If not set, defaults to using the remote address
   EnableHeaders = true, // If true, a set of headers, documented below, will be returned on all responses describing the rate limits
-  HeaderPrefix = "X-MYORG-" // This will be appended to all generated headers.
+  HeaderPrefix = "X-MYORG-" // This will be prepended to all generated headers.
 };
 
 app.UseRateLimiting(new LeakyBucketRateLimitStrategy(rateLimitingConfiguration));
