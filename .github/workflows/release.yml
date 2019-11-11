@@ -2,7 +2,7 @@ name: Release to Nuget
 
 on:
   push:
-    branches: release/*
+    tags: release/*
 
 jobs:
   build:
