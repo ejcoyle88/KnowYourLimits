@@ -5,7 +5,7 @@ using KnowYourLimits.Identity;
 
 namespace KnowYourLimits.Strategies.LeakyBucket
 {
-    /// <inheritdoc cref="IRateLimitStrategy" />
+    /// <inheritdoc cref="IRateLimitStrategy{TIdentityType}" />
     /// <summary>
     ///     A rate limiting strategy using the leaky bucket algorithm.
     /// </summary>
@@ -128,7 +128,7 @@ namespace KnowYourLimits.Strategies.LeakyBucket
 
             if (identity.LastLeak == null) identity.LastLeak = DateTime.UtcNow;
 
-            if (identity.LastLeak >= DateTime.UtcNow || 
+            if (identity.LastLeak >= DateTime.UtcNow ||
                 identity.LastLeak + _configuration.LeakRate > DateTime.UtcNow)
             {
                 return;

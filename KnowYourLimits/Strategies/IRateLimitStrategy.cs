@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using KnowYourLimits.Identity;
 
+// This is a library, so not all of the methods are used in the project.
+// ReSharper disable UnusedMemberInSuper.Global
+// ReSharper disable UnusedMethodReturnValue.Global
+// ReSharper disable UnusedMember.Global
+
 namespace KnowYourLimits.Strategies
 {
     /// <summary>
@@ -81,9 +86,9 @@ namespace KnowYourLimits.Strategies
         /// <returns>Headers</returns>
         Dictionary<string, string> GetResponseHeaders(IClientIdentity identity);
         /// <summary>
-        /// True if headers describing the rate limiting strategy should be added to the response.
+        /// Check if headers should be added to the response
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if headers describing the rate limiting strategy should be added to the response else false.</returns>
         bool ShouldAddHeaders();
     }
 }

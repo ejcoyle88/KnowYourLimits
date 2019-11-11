@@ -6,7 +6,7 @@ namespace KnowYourLimits.Strategies
 {
     public class BaseRateLimitConfiguration
     {
-        public bool EnableHeaders { get; set; } = false;
+        public bool EnableHeaders { get; set; }
         public string HeaderPrefix { get; set; } = "X-";
     }
 }
