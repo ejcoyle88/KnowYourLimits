@@ -1,4 +1,4 @@
-[![CircleCI](https://img.shields.io/circleci/project/github/ejcoyle88/KnowYourLimits.svg)](https://circleci.com/gh/ejcoyle88/KnowYourLimits) [![NuGet](https://img.shields.io/nuget/dt/KnowYourLimits.AspNetCore.svg)](https://www.nuget.org/packages/KnowYourLimits.AspNetCore)
+[![NuGet](https://img.shields.io/nuget/dt/KnowYourLimits.AspNetCore.svg)](https://www.nuget.org/packages/KnowYourLimits.AspNetCore)
 
 # KnowYourLimits
 A rate limiting library for .Net projects.
