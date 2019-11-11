@@ -19,6 +19,9 @@ jobs:
     name: Release
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v1
+      - name: Build & Test
+        run: dotnet build --configuration Release
       - name: Push package to nuget
         run: dotnet nuget push **/*.nupkg
               --api-key ${{ secrets.NUGET_DEPLOY_KEY }}
