@@ -172,8 +172,8 @@ namespace KnowYourLimits.UnitTests
             var failedRequests = 0;
 
 #pragma warning disable 1998
-            async Task OnSuccessfulRequest() => successfulRequests++;
-            async Task OnFailedRequest() => failedRequests++;
+            async Task OnSuccessfulRequest() => successfulRequests += 1;
+            async Task OnFailedRequest() => failedRequests += 1;
 #pragma warning restore 1998
 
             await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
