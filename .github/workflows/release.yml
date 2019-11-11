@@ -1,8 +1,7 @@
 name: Release to Nuget
 
 on:
-  push:
-    tags: release/*
+  release: [published]
 
 jobs:
   build:
