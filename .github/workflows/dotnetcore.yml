@@ -19,4 +19,4 @@ jobs:
       - name: Build & Test
         run: |
           dotnet build --configuration Release
-          dotnet test KnowYourLimits.UnitTests/KnowYourLimits.unitTests.csproj
+          dotnet test KnowYourLimits.UnitTests/KnowYourLimits.UnitTests.csproj
