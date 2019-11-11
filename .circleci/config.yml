@@ -10,5 +10,5 @@ jobs:
         - dependabot/*
     steps:
       - checkout
-      - run: dotnet build -c release
-      - run: dotnet test --no-build KnowYourLimits.UnitTests/KnowYourLimits.UnitTests.csproj
+      - run: dotnet build -c Release
+      - run: dotnet test KnowYourLimits.UnitTests/KnowYourLimits.UnitTests.csproj
