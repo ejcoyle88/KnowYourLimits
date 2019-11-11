@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace KnowYourLimits.Identity
 {
+    /// <inheritdoc />
     /// <summary>
     /// A unique representation of the current client for identification purposes.
     /// </summary>
