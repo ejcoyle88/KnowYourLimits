@@ -172,8 +172,8 @@ namespace KnowYourLimits.UnitTests
             var failedRequests = 0;
 
 #pragma warning disable 1998
-            async Task OnSuccessfulRequest() => successfulRequests++;
-            async Task OnFailedRequest() => failedRequests++;
+            async Task OnSuccessfulRequest() => successfulRequests += 1;
+            async Task OnFailedRequest() => failedRequests += 1;
 #pragma warning restore 1998
 
             await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
@@ -215,14 +215,11 @@ namespace KnowYourLimits.UnitTests
 
             var rateLimiter = new LeakyBucketRateLimitStrategy(config);
 
-#pragma warning disable 1998
-            async Task OnSuccessfulRequest() { }
-            async Task OnFailedRequest() { }
-#pragma warning restore 1998
-
             for (var i = 0; i < requestCount; i++)
             {
-                await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
+#pragma warning disable 1998
+                await rateLimiter.OnRequest(async () => { }, async () => { });
+#pragma warning restore 1998
             }
 
             if (waitSeconds > 0)
@@ -230,7 +227,9 @@ namespace KnowYourLimits.UnitTests
                 Thread.Sleep(TimeSpan.FromSeconds(waitSeconds));
             }
 
-            await rateLimiter.OnRequest(OnSuccessfulRequest, OnFailedRequest);
+#pragma warning disable 1998
+            await rateLimiter.OnRequest(async () => { }, async () => { });
+#pragma warning restore 1998
 
             Assert.Equal(expected, rateLimiter.GetRemainingAllowance());
         }

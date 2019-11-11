@@ -8,14 +8,14 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        dotnet_version: [3.0.100]
         os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
       - uses: actions/checkout@v1
-      - name: Use dotnet ${{ matrix.dotnet_version }}
-        uses: actions/setup-dotnet@v1
+      - name: Setup dotnet core 3.0.100 if needed
+        uses: actions/setup-dotnet@v1.2.0
         with:
-          dotnet-version:  ${{ matrix.dotnet_version }}
+          dotnet-version:  3.0.100
+        if: matrix.os == 'macOS-latest' || matrix.os == 'ubuntu-latest'
       - name: Build & Test
         run: |
           dotnet build --configuration Release

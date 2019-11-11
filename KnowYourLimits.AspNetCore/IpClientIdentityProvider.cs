@@ -15,12 +15,18 @@ namespace KnowYourLimits.AspNetCore
         public HttpContext Context { get; set; }
         public TClientIdentity GetIdentityForCurrentRequest()
         {
-            if(Context == null) throw new ArgumentException(nameof(Context));
+            if (Context == null)
+            {
+                throw new ArgumentException(nameof(Context));
+            }
 
             var httpConnectionFeature = Context.Features.Get<IHttpConnectionFeature>();
             var userHostAddress = httpConnectionFeature?.RemoteIpAddress.ToString() ?? "";
 
-            if (_clientIdentities.ContainsKey(userHostAddress)) return _clientIdentities[userHostAddress];
+            if (_clientIdentities.ContainsKey(userHostAddress))
+            {
+                return _clientIdentities[userHostAddress];
+            }
 
             var newIdentity = new TClientIdentity {UniqueIdentifier = userHostAddress};
 
