@@ -1,48 +1,56 @@
-﻿using System;
 using System.Threading.Tasks;
 using KnowYourLimits.Identity;
 using KnowYourLimits.Strategies;
-using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
 namespace KnowYourLimits.AspNetCore
 {
-    public static class RateLimiterMiddleware
+    // ReSharper disable once ClassNeverInstantiated.Global
+    // Instantiated as middleware
+    public class RateLimiterMiddleware<TClientIdentity>
+        where TClientIdentity : IClientIdentity, new()
     {
-        public static void UseRateLimiting<TClientIdentity>(this IApplicationBuilder applicationBuilder, IRateLimitStrategy<TClientIdentity> rateLimitStrategy)
-            where TClientIdentity : IClientIdentity, new()
+        private readonly RequestDelegate _next;
+        private readonly IRateLimitStrategy<IClientIdentity> _rateLimitStrategy;
+
+        public RateLimiterMiddleware(RequestDelegate next, IRateLimitStrategy<IClientIdentity> rateLimitStrategy)
         {
-            if (rateLimitStrategy.IdentityProvider == null)
+            _next = next;
+            _rateLimitStrategy = rateLimitStrategy;
+        }
+
+        // ReSharper disable once UnusedMember.Global
+        // Called by the runtime
+        public async Task Invoke(HttpContext context)
+        {
+            if (_rateLimitStrategy.IdentityProvider is IHttpContextIdentityProvider<TClientIdentity> provider)
             {
-                rateLimitStrategy.IdentityProvider = new IpClientIdentityProvider<TClientIdentity>();
+                provider.Context = context;
             }
 
-            applicationBuilder.Use(async (context, next) =>
+            if (_rateLimitStrategy.ShouldAddHeaders())
             {
-                if (rateLimitStrategy.IdentityProvider is IHttpContextIdentityProvider<TClientIdentity> provider)
+                var headers = _rateLimitStrategy.GetResponseHeaders();
+                context.Response.OnStarting(() =>
                 {
-                    provider.Context = context;
-                }
-
-                if (rateLimitStrategy.ShouldAddHeaders())
-                {
-                    var headers = rateLimitStrategy.GetResponseHeaders();
-                    context.Response.OnStarting(() =>
+                    foreach (var header in headers)
                     {
-                        foreach (var header in headers)
-                        {
-                            context.Response.Headers.Add(header.Key, new StringValues(header.Value));
-                        }
+                        context.Response.Headers.Add(header.Key, new StringValues(header.Value));
+                    }
 
-                        return Task.FromResult(0);
-                    });
-                }
+                    return Task.FromResult(0);
+                });
+            }
 
-                async Task OnHasRequestsRemaining() => await next.Invoke();
-                async Task OnNoRequestsRemaining() => context.Response.StatusCode = 429;
+            async Task OnHasRequestsRemaining() => await _next(context);
 
-                await rateLimitStrategy.OnRequest(OnHasRequestsRemaining, OnNoRequestsRemaining);
-            });
+            // ReSharper disable once ImplicitlyCapturedClosure
+#pragma warning disable 1998
+            async Task OnNoRequestsRemaining() => context.Response.StatusCode = 429;
+#pragma warning restore 1998
+
+            await _rateLimitStrategy.OnRequest(OnHasRequestsRemaining, OnNoRequestsRemaining);
         }
     }
 }

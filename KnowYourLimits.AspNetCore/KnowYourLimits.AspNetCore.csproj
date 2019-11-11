@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFrameworks>netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Elliot Coyle</Authors>
     <Company />
@@ -13,10 +13,12 @@
     <FileVersion>2.2.0.0</FileVersion>
     <AssemblyVersion>2.2.0.0</AssemblyVersion>
     <Version>2.3.2</Version>
+    <PackageVersion>3.0.0</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="SecurityCodeScan" Version="3.3.0" />
   </ItemGroup>
 
   <ItemGroup>
