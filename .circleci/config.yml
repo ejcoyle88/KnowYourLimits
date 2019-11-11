@@ -2,10 +2,11 @@ version: 2
 jobs:
   build:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/aspnet:3.0
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0
     branches:
       only:
         - master
+        - feature/*
         - dependabot/*
     steps:
       - checkout
