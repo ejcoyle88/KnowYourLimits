@@ -73,11 +73,11 @@ namespace KnowYourLimits.Strategies.LeakyBucket
             if (HasRemainingAllowance())
             {
                 ReduceAllowanceBy(_configuration.RequestCost);
-                await onHasRequestsRemaining();
+                await onHasRequestsRemaining().ConfigureAwait(false);
             }
             else
             {
-                await onNoRequestsRemaining();
+                await onNoRequestsRemaining().ConfigureAwait(false);
             }
         }
 
@@ -110,7 +110,7 @@ namespace KnowYourLimits.Strategies.LeakyBucket
             return IncreaseAllowanceBy(_configuration.IdentityProvider.GetIdentityForCurrentRequest(), requests);
         }
 
-        private LeakyBucketClientIdentity CastIdentity(IClientIdentity identity)
+        private static LeakyBucketClientIdentity CastIdentity(IClientIdentity identity)
         {
             if (!(identity is LeakyBucketClientIdentity))
             {
@@ -126,7 +126,10 @@ namespace KnowYourLimits.Strategies.LeakyBucket
                 return;
             }
 
-            if (identity.LastLeak == null) identity.LastLeak = DateTime.UtcNow;
+            if (identity.LastLeak == null)
+            {
+                identity.LastLeak = DateTime.UtcNow;
+            }
 
             if (identity.LastLeak >= DateTime.UtcNow ||
                 identity.LastLeak + _configuration.LeakRate > DateTime.UtcNow)
