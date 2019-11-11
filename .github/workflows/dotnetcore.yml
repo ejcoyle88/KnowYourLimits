@@ -1,0 +1,22 @@
+name: .NET Core
+
+on: [push]
+
+jobs:
+  test:
+    name: Test on various OS and dotnet versions
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        dotnet_version: [3.0.100]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use dotnet ${{ matrix.dotnet_version }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version:  ${{ matrix.dotnet_version }}
+      - name: Build & Test
+        run: |
+          dotnet build --configuration Release
+          dotnet test KnowYourLimits.UnitTests/KnowYourLimits.UnitTests.csproj
