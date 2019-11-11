@@ -26,10 +26,3 @@ jobs:
         run: dotnet nuget push **/*.nupkg
               --api-keyt ${{ secrets.NUGET_DEPLOY_KEY }}
               --source https://api.nuget.org/v3/index.json
-  gitrelease:
-    needs: [release]
-    name: Github Release
-    runs-on: windows-latest
-    steps:
-      - name: Git Release
-        uses: anton-yurchenko/git-release@v1.0.0
