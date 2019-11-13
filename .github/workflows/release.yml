@@ -1,0 +1,29 @@
+name: Release to Nuget
+
+on:
+  release: 
+    types: [published]
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build & Test
+        run: |
+          dotnet build --configuration Release
+          dotnet test KnowYourLimits.UnitTests/KnowYourLimits.UnitTests.csproj
+  release:
+    needs: [build]
+    name: Release
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build & Test
+        run: dotnet build --configuration Release
+      - name: Push package to nuget
+        run: dotnet nuget push **/*.nupkg
+              --api-key ${{ secrets.NUGET_DEPLOY_KEY }}
+              --source https://api.nuget.org/v3/index.json
+              --no-symbols true
