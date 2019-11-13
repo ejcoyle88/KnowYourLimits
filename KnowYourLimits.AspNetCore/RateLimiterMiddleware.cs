@@ -12,9 +12,9 @@ namespace KnowYourLimits.AspNetCore
         where TClientIdentity : IClientIdentity, new()
     {
         private readonly RequestDelegate _next;
-        private readonly IRateLimitStrategy<IClientIdentity> _rateLimitStrategy;
+        private readonly IRateLimitStrategy<TClientIdentity> _rateLimitStrategy;
 
-        public RateLimiterMiddleware(RequestDelegate next, IRateLimitStrategy<IClientIdentity> rateLimitStrategy)
+        public RateLimiterMiddleware(RequestDelegate next, IRateLimitStrategy<TClientIdentity> rateLimitStrategy)
         {
             _next = next;
             _rateLimitStrategy = rateLimitStrategy;
