@@ -17,17 +17,29 @@ The middleware should be attached to the application as high in the order as pos
 For example, to configure the rate limiter to allow 4 requests per second, with a maximum of 100 requests, see below:
 
 ```cs
-var rateLimitingConfiguration = new LeakyBucketConfiguration
+public void ConfigureServices(IServiceCollection services)
 {
-  MaxRequests = 100,
-  LeakRate = TimeSpan.FromSeconds(1),
-  LeakAmount = 4,
-  IdentityProvider = new CustomIdentityProvider(), // If not set, defaults to using the remote address
-  EnableHeaders = true, // If true, a set of headers, documented below, will be returned on all responses describing the rate limits
-  HeaderPrefix = "X-MYORG-" // This will be prepended to all generated headers.
-};
+    ...
+    var rateLimitingConfiguration = new LeakyBucketConfiguration
+    {
+        MaxRequests = 100,
+        LeakRate = TimeSpan.FromSeconds(1),
+        LeakAmount = 4,
+        IdentityProvider = new CustomIdentityProvider(), // If not set, defaults to using the remote address
+        EnableHeaders = true, // If true, a set of headers, documented below, will be returned on all responses describing the rate limits
+        HeaderPrefix = "X-MYORG-" // This will be prepended to all generated headers.
+    };
+    services.AddLeakyBucketRateLimiting(rateLimitingConfiguration);
+    ...
+}
 
-app.UseRateLimiting(new LeakyBucketRateLimitStrategy(rateLimitingConfiguration));
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
+{
+    ...
+    app.UseRateLimiting<LeakyBucketClientIdentity>();
+    ...
+}
 ```
 
 By default client requests will be identified using the remote address of the request. To implement a custom identity provider, implement the `IClientIdentityProvider` interface and pass it in to the configuration.

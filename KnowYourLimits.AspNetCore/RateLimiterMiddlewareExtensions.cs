@@ -1,23 +1,40 @@
 ﻿using KnowYourLimits.Identity;
 using KnowYourLimits.Strategies;
+using KnowYourLimits.Strategies.LeakyBucket;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+
+// These are all used outside of this lib, and so are 'unused'
+// ReSharper disable UnusedMember.Global
 
 namespace KnowYourLimits.AspNetCore
 {
-    // ReSharper disable once UnusedMember.Global
     public static class RateLimiterMiddlewareExtensions
     {
-        // ReSharper disable once UnusedMember.Global
-        public static void UseRateLimiting<TClientIdentity>(this IApplicationBuilder applicationBuilder,
-            IRateLimitStrategy<TClientIdentity> rateLimitStrategy)
+        public static void UseRateLimiting<TClientIdentity>(this IApplicationBuilder applicationBuilder)
             where TClientIdentity : IClientIdentity, new()
         {
-            if (rateLimitStrategy.IdentityProvider == null)
+            applicationBuilder.UseMiddleware<RateLimiterMiddleware<TClientIdentity>>();
+        }
+
+        public static void AddRateLimiting<TClientIdentity>(
+            this IServiceCollection serviceCollection,
+            IRateLimitStrategy<TClientIdentity> strategy)
+            where TClientIdentity : IClientIdentity, new()
+        {
+            if (strategy.IdentityProvider == null)
             {
-                rateLimitStrategy.IdentityProvider = new IpClientIdentityProvider<TClientIdentity>();
+                strategy.IdentityProvider = new IpClientIdentityProvider<TClientIdentity>();
             }
 
-            applicationBuilder.UseMiddleware<RateLimiterMiddleware<TClientIdentity>>(rateLimitStrategy);
+            serviceCollection.AddSingleton(strategy);
+        }
+
+        public static void AddLeakyBucketRateLimiting(
+            this IServiceCollection serviceCollection,
+            LeakyBucketConfiguration config)
+        {
+            serviceCollection.AddRateLimiting(new LeakyBucketRateLimitStrategy(config));
         }
     }
 }
