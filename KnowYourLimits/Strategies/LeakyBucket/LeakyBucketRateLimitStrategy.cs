@@ -1,78 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using KnowYourLimits.Identity;
 
 namespace KnowYourLimits.Strategies.LeakyBucket
 {
-    /// <inheritdoc cref="IRateLimitStrategy{TIdentityType}" />
+    /// <inheritdoc cref="IRateLimitStrategy{TIdentityType, TConfig}" />
     /// <summary>
     ///     A rate limiting strategy using the leaky bucket algorithm.
     /// </summary>
-    public class LeakyBucketRateLimitStrategy : IRateLimitStrategy<LeakyBucketClientIdentity>
+    public class LeakyBucketRateLimitStrategy 
+        : IRateLimitStrategy<LeakyBucketClientIdentity, LeakyBucketConfiguration>
     {
-        private readonly LeakyBucketConfiguration _configuration;
-
-        public IClientIdentityProvider<LeakyBucketClientIdentity> IdentityProvider
-        {
-            get => _configuration.IdentityProvider;
-            set => _configuration.IdentityProvider = value;
-        }
-
-        public LeakyBucketRateLimitStrategy(LeakyBucketConfiguration configuration)
-        {
-            _configuration = configuration;
-            IdentityProvider = _configuration.IdentityProvider;
-        }
-
-        public bool HasRemainingAllowance(IClientIdentity identity)
+        public bool HasRemainingAllowance(LeakyBucketClientIdentity identity, LeakyBucketConfiguration config)
         {
             var leakyIdentity = CastIdentity(identity);
-            Leak(leakyIdentity);
-            return GetRemainingAllowance(leakyIdentity) > 0;
+            Leak(leakyIdentity, config);
+            return GetRemainingAllowance(leakyIdentity, config) > 0;
         }
 
-        public bool HasRemainingAllowance()
+        public long ReduceAllowanceBy(LeakyBucketClientIdentity identity, LeakyBucketConfiguration config)
         {
-            return HasRemainingAllowance(_configuration.IdentityProvider.GetIdentityForCurrentRequest());
+            return ReduceAllowanceBy(identity, config.RequestCost);
         }
 
-        public long GetRemainingAllowance(IClientIdentity identity)
-        {
-            var leakyIdentity = CastIdentity(identity);
-            Leak(leakyIdentity);
-            return GetRemainingAllowance(leakyIdentity);
-        }
-
-        public long GetRemainingAllowance()
-        {
-            return GetRemainingAllowance(_configuration.IdentityProvider.GetIdentityForCurrentRequest());
-        }
-
-        public long ReduceAllowanceBy(IClientIdentity identity, long requests)
+        public long ReduceAllowanceBy(LeakyBucketClientIdentity identity, long requests)
         {
             var leakyIdentity = CastIdentity(identity);
             leakyIdentity.RequestCount += requests;
             return leakyIdentity.RequestCount;
         }
 
-        public long ReduceAllowanceBy(long requests)
-        {
-            return ReduceAllowanceBy(_configuration.IdentityProvider.GetIdentityForCurrentRequest(), requests);
-        }
-
-        public long IncreaseAllowanceBy(IClientIdentity identity, long requests)
+        public long IncreaseAllowanceBy(LeakyBucketClientIdentity identity, long requests)
         {
             var leakyIdentity = CastIdentity(identity);
             leakyIdentity.RequestCount -= requests;
             return leakyIdentity.RequestCount;
         }
 
-        public async Task OnRequest(Func<Task> onHasRequestsRemaining, Func<Task> onNoRequestsRemaining)
+        public async Task OnRequest(Func<Task> onHasRequestsRemaining, Func<Task> onNoRequestsRemaining, LeakyBucketClientIdentity identity, LeakyBucketConfiguration config)
         {
-            if (HasRemainingAllowance())
+            if (HasRemainingAllowance(identity, config))
             {
-                ReduceAllowanceBy(_configuration.RequestCost);
+                ReduceAllowanceBy(identity, config.RequestCost);
                 await onHasRequestsRemaining().ConfigureAwait(false);
             }
             else
@@ -81,36 +50,26 @@ namespace KnowYourLimits.Strategies.LeakyBucket
             }
         }
 
-        public Dictionary<string, string> GetResponseHeaders()
+        public Dictionary<string, string> GetResponseHeaders(LeakyBucketClientIdentity identity, LeakyBucketConfiguration config)
         {
-            return GetResponseHeaders(_configuration.IdentityProvider.GetIdentityForCurrentRequest());
-        }
-
-        public Dictionary<string, string> GetResponseHeaders(IClientIdentity identity)
-        {
-            string GetHeaderName(string hN) => $"{_configuration.HeaderPrefix}{hN}";
+            string GetHeaderName(string hN) => $"{config.HeaderPrefix}{hN}";
 
             return new Dictionary<string, string>
             {
-                { GetHeaderName("RateLimit-Remaining"), GetRemainingAllowance(identity).ToString() },
-                { GetHeaderName("RateLimit-LeakRate"), _configuration.LeakRate.ToString() },
-                { GetHeaderName("RateLimit-LeakAmount"), _configuration.LeakAmount.ToString() },
-                { GetHeaderName("RateLimit-BucketSize"), _configuration.MaxRequests.ToString() },
-                { GetHeaderName("RateLimit-Cost"), _configuration.RequestCost.ToString() }
+                { GetHeaderName("RateLimit-Remaining"), GetRemainingAllowance(identity, config).ToString() },
+                { GetHeaderName("RateLimit-LeakRate"), config.LeakRate.ToString()  },
+                { GetHeaderName("RateLimit-LeakAmount"), config.LeakAmount.ToString() },
+                { GetHeaderName("RateLimit-BucketSize"), config.MaxRequests.ToString() },
+                { GetHeaderName("RateLimit-Cost"), config.RequestCost.ToString() }
             };
         }
 
-        public bool ShouldAddHeaders()
+        public bool ShouldAddHeaders(LeakyBucketConfiguration config)
         {
-            return _configuration.EnableHeaders;
+            return config.EnableHeaders;
         }
 
-        public long IncreaseAllowanceBy(long requests)
-        {
-            return IncreaseAllowanceBy(_configuration.IdentityProvider.GetIdentityForCurrentRequest(), requests);
-        }
-
-        private static LeakyBucketClientIdentity CastIdentity(IClientIdentity identity)
+        private static LeakyBucketClientIdentity CastIdentity(LeakyBucketClientIdentity identity)
         {
             if (!(identity is LeakyBucketClientIdentity))
             {
@@ -119,9 +78,9 @@ namespace KnowYourLimits.Strategies.LeakyBucket
             return (LeakyBucketClientIdentity) identity;
         }
 
-        private void Leak(LeakyBucketClientIdentity identity)
+        private void Leak(LeakyBucketClientIdentity identity, LeakyBucketConfiguration config)
         {
-            if (identity == null)
+            if (identity == null || config == null)
             {
                 return;
             }
@@ -132,21 +91,21 @@ namespace KnowYourLimits.Strategies.LeakyBucket
             }
 
             if (identity.LastLeak >= DateTime.UtcNow ||
-                identity.LastLeak + _configuration.LeakRate > DateTime.UtcNow)
+                identity.LastLeak + config.LeakRate > DateTime.UtcNow)
             {
                 return;
             }
 
             var timeSinceLastLeak = DateTime.UtcNow - identity.LastLeak.Value;
-            var leaksSinceLast = timeSinceLastLeak.Ticks / _configuration.LeakRate.Ticks;
-            var rawLeakTotal = _configuration.LeakAmount * leaksSinceLast;
+            var leaksSinceLast = timeSinceLastLeak.Ticks / config.LeakRate.Ticks;
+            var rawLeakTotal = config.LeakAmount * leaksSinceLast;
             identity.RequestCount -= rawLeakTotal >= identity.RequestCount ? identity.RequestCount : rawLeakTotal;
             identity.LastLeak = DateTime.UtcNow;
         }
 
-        private long GetRemainingAllowance(LeakyBucketClientIdentity identity)
+        public long GetRemainingAllowance(LeakyBucketClientIdentity identity, LeakyBucketConfiguration config)
         {
-            return _configuration.MaxRequests - identity.RequestCount;
+            return config.MaxRequests - identity.RequestCount;
         }
     }
 }

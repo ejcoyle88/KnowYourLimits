@@ -1,4 +1,6 @@
-﻿namespace KnowYourLimits.Identity
+﻿using Microsoft.AspNetCore.Http;
+
+namespace KnowYourLimits.Identity
 {
     /// <summary>
     /// Fetches a <see cref="IClientIdentity"/> for the current request.
@@ -9,6 +11,6 @@
         /// Fetches a <see cref="IClientIdentity"/> for the current request.
         /// </summary>
         /// <returns>The current requests <see cref="IClientIdentity"/></returns>
-        TIdentityType GetIdentityForCurrentRequest();
+        TIdentityType GetCurrentIdentity();
     }
 }

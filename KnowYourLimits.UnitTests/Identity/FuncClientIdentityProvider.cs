@@ -15,7 +15,7 @@ namespace KnowYourLimits.UnitTests.Identity
             GetClientIdentity = getClientIdentity ?? (() => new TClientIdentity { UniqueIdentifier = "FuncClientIdentityProvider" });
         }
 
-        public TClientIdentity GetIdentityForCurrentRequest()
+        public TClientIdentity GetCurrentIdentity()
         {
             return GetClientIdentity();
         }

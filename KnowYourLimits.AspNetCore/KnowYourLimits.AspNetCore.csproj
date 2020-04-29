@@ -13,9 +13,10 @@
     <FileVersion>2.2.0.0</FileVersion>
     <AssemblyVersion>2.2.0.0</AssemblyVersion>
     <Version>2.3.2</Version>
-    <PackageVersion>4.1.0</PackageVersion>
+    <PackageVersion>5.0.0</PackageVersion>
     <IsPackable>true</IsPackable>
     <OutputType>Library</OutputType>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

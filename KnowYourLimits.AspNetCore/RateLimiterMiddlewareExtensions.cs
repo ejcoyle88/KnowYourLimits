@@ -1,4 +1,6 @@
-﻿using KnowYourLimits.Identity;
+﻿using System;
+using KnowYourLimits.Configuration;
+using KnowYourLimits.Identity;
 using KnowYourLimits.Strategies;
 using KnowYourLimits.Strategies.LeakyBucket;
 using Microsoft.AspNetCore.Builder;
@@ -11,30 +13,34 @@ namespace KnowYourLimits.AspNetCore
 {
     public static class RateLimiterMiddlewareExtensions
     {
-        public static void UseRateLimiting<TClientIdentity>(this IApplicationBuilder applicationBuilder)
-            where TClientIdentity : IClientIdentity, new()
+        private static IConfigurationProvider<LeakyBucketConfiguration> LeakyBucketConfigProvider
+            = new LeakyBucketConfigurationProvider();
+        
+        public static void UseRateLimiting<TClientIdentity, TConfig, TStrategy>(
+                this IApplicationBuilder applicationBuilder)
+            where TClientIdentity : class, IClientIdentity, new()
+            where TConfig : BaseRateLimitConfiguration
+            where TStrategy : class, IRateLimitStrategy<TClientIdentity, TConfig>, new()
         {
-            applicationBuilder.UseMiddleware<RateLimiterMiddleware<TClientIdentity>>();
+            applicationBuilder.UseMiddleware<RateLimiterMiddleware<TClientIdentity, TConfig, TStrategy>>();
         }
 
-        public static void AddRateLimiting<TClientIdentity>(
-            this IServiceCollection serviceCollection,
-            IRateLimitStrategy<TClientIdentity> strategy)
-            where TClientIdentity : IClientIdentity, new()
+        public static void UseLeakyBucketRateLimiting(this IApplicationBuilder applicationBuilder)
         {
-            if (strategy.IdentityProvider == null)
-            {
-                strategy.IdentityProvider = new IpClientIdentityProvider<TClientIdentity>();
-            }
-
-            serviceCollection.AddSingleton(strategy);
+            applicationBuilder.UseRateLimiting<
+                LeakyBucketClientIdentity,
+                LeakyBucketConfiguration,
+                LeakyBucketRateLimitStrategy>();
         }
 
-        public static void AddLeakyBucketRateLimiting(
-            this IServiceCollection serviceCollection,
-            LeakyBucketConfiguration config)
+        public static void AddLeakyBucketRateLimiting(this IServiceCollection _,
+            Action<IConfigurationProvider<LeakyBucketConfiguration>> configure)
         {
-            serviceCollection.AddRateLimiting(new LeakyBucketRateLimitStrategy(config));
+            configure(LeakyBucketConfigProvider);
+            _.AddSingleton<
+                IClientIdentityProvider<LeakyBucketClientIdentity>,
+                IpClientIdentityProvider<LeakyBucketClientIdentity>>();
+            _.AddSingleton(LeakyBucketConfigProvider);
         }
     }
 }
