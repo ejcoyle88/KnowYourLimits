@@ -37,19 +37,6 @@ namespace KnowYourLimits.Strategies.LeakyBucket
             return leakyIdentity.RequestCount;
         }
 
-        public async Task OnRequest(Func<Task> onHasRequestsRemaining, Func<Task> onNoRequestsRemaining, LeakyBucketClientIdentity identity, LeakyBucketConfiguration config)
-        {
-            if (HasRemainingAllowance(identity, config))
-            {
-                ReduceAllowanceBy(identity, config.RequestCost);
-                await onHasRequestsRemaining().ConfigureAwait(false);
-            }
-            else
-            {
-                await onNoRequestsRemaining().ConfigureAwait(false);
-            }
-        }
-
         public Dictionary<string, string> GetResponseHeaders(LeakyBucketClientIdentity identity, LeakyBucketConfiguration config)
         {
             string GetHeaderName(string hN) => $"{config.HeaderPrefix}{hN}";
