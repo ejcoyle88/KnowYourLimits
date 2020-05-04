@@ -14,33 +14,7 @@ When a client exceeds their request limit, a `429 Too Many Requests` status will
 # Setup
 The middleware should be attached to the application as high in the order as possible, to intercept requests early.
 
-For example, to configure the rate limiter to allow 4 requests per second, with a maximum of 100 requests, see below:
-
-```cs
-public void ConfigureServices(IServiceCollection services)
-{
-    ...
-    var rateLimitingConfiguration = new LeakyBucketConfiguration
-    {
-        MaxRequests = 100,
-        LeakRate = TimeSpan.FromSeconds(1),
-        LeakAmount = 4,
-        IdentityProvider = new CustomIdentityProvider(), // If not set, defaults to using the remote address
-        EnableHeaders = true, // If true, a set of headers, documented below, will be returned on all responses describing the rate limits
-        HeaderPrefix = "X-MYORG-" // This will be prepended to all generated headers.
-    };
-    services.AddLeakyBucketRateLimiting(rateLimitingConfiguration);
-    ...
-}
-
-
-public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
-{
-    ...
-    app.UseRateLimiting<LeakyBucketClientIdentity>();
-    ...
-}
-```
+For an example of how to configure the library, please see the [example Startup.cs](https://github.com/ejcoyle88/KnowYourLimits/blob/master/KnowYourLimits.AspNetCore.Example/Startup.cs#L30)
 
 By default client requests will be identified using the remote address of the request. To implement a custom identity provider, implement the `IClientIdentityProvider` interface and pass it in to the configuration.
 
