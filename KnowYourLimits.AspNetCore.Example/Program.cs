@@ -20,7 +20,6 @@ namespace KnowYourLimits.AspNetCore.Example
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
                 return 1;
             }
         }

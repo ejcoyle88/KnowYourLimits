@@ -16,10 +16,6 @@ namespace KnowYourLimits.AspNetCore.Example.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        public TestController()
-        {
-        }
-
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {

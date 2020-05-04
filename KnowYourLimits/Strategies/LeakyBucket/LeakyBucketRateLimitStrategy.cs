@@ -13,9 +13,8 @@ namespace KnowYourLimits.Strategies.LeakyBucket
     {
         public bool HasRemainingAllowance(LeakyBucketClientIdentity identity, LeakyBucketConfiguration config)
         {
-            var leakyIdentity = CastIdentity(identity);
-            Leak(leakyIdentity, config);
-            return GetRemainingAllowance(leakyIdentity, config) > 0;
+            Leak(identity, config);
+            return GetRemainingAllowance(identity, config) > 0;
         }
 
         public long ReduceAllowanceBy(LeakyBucketClientIdentity identity, LeakyBucketConfiguration config)
@@ -25,16 +24,14 @@ namespace KnowYourLimits.Strategies.LeakyBucket
 
         public long ReduceAllowanceBy(LeakyBucketClientIdentity identity, long requests)
         {
-            var leakyIdentity = CastIdentity(identity);
-            leakyIdentity.RequestCount += requests;
-            return leakyIdentity.RequestCount;
+            identity.RequestCount += requests;
+            return identity.RequestCount;
         }
 
         public long IncreaseAllowanceBy(LeakyBucketClientIdentity identity, long requests)
         {
-            var leakyIdentity = CastIdentity(identity);
-            leakyIdentity.RequestCount -= requests;
-            return leakyIdentity.RequestCount;
+            identity.RequestCount -= requests;
+            return identity.RequestCount;
         }
 
         public Dictionary<string, string> GetResponseHeaders(LeakyBucketClientIdentity identity, LeakyBucketConfiguration config)
@@ -54,15 +51,6 @@ namespace KnowYourLimits.Strategies.LeakyBucket
         public bool ShouldAddHeaders(LeakyBucketConfiguration config)
         {
             return config.EnableHeaders;
-        }
-
-        private LeakyBucketClientIdentity CastIdentity(LeakyBucketClientIdentity identity)
-        {
-            if (!(identity is LeakyBucketClientIdentity))
-            {
-                throw new ArgumentException(nameof(identity));
-            }
-            return (LeakyBucketClientIdentity) identity;
         }
 
         private void Leak(LeakyBucketClientIdentity identity, LeakyBucketConfiguration config)
