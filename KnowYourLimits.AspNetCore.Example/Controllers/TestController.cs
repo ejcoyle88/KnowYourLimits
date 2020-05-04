@@ -16,11 +16,8 @@ namespace KnowYourLimits.AspNetCore.Example.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        private readonly ILogger<TestController> _logger;
-
-        public TestController(ILogger<TestController> logger)
+        public TestController()
         {
-            _logger = logger;
         }
 
         [HttpGet]

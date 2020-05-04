@@ -56,7 +56,7 @@ namespace KnowYourLimits.Strategies.LeakyBucket
             return config.EnableHeaders;
         }
 
-        private static LeakyBucketClientIdentity CastIdentity(LeakyBucketClientIdentity identity)
+        private LeakyBucketClientIdentity CastIdentity(LeakyBucketClientIdentity identity)
         {
             if (!(identity is LeakyBucketClientIdentity))
             {

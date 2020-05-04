@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace KnowYourLimits.AspNetCore.Example
 {
-    public class Program
+    public static class Program
     {
         public static int Main(string[] args)
         {
