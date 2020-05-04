@@ -33,6 +33,7 @@ namespace KnowYourLimits.AspNetCore
         public async Task Invoke(HttpContext context)
         {
             var config = _configurationProvider.GetConfiguration(context);
+            // If there's no matching configuration, let the request through.
             if (config == null)
             {
                 await _next(context);

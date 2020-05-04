@@ -39,7 +39,12 @@ namespace KnowYourLimits.Strategies.LeakyBucket
 
         public LeakyBucketConfiguration? GetConfiguration(HttpContext ctx)
         {
-            return _configTargets.SingleOrDefault(t => t.UseWhen(ctx))?.Configuration ?? _defaultConfig;
+            var configurations = _configTargets.Where(t => t.UseWhen(ctx));
+            if(configurations.Count() > 1) {
+                throw new InvalidOperationException("Multiple rate limiting configurations found matching this request.");
+            }
+
+            return configurations.SingleOrDefault()?.Configuration ?? _defaultConfig;
         }
     }
 }
