@@ -18,7 +18,7 @@ namespace KnowYourLimits.AspNetCore.Example
                 CreateHostBuilder(args).Build().Run();
                 return 0;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return 1;
             }
