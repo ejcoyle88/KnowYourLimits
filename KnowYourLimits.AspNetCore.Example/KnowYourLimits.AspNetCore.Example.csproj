@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <NoWarn>1701;1702;SCS0005</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\KnowYourLimits.AspNetCore\KnowYourLimits.AspNetCore.csproj" />
+      <ProjectReference Include="..\KnowYourLimits\KnowYourLimits.csproj" />
+    </ItemGroup>
+
+
+</Project>

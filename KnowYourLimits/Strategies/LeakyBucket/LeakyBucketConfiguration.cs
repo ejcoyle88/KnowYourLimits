@@ -21,9 +21,5 @@ namespace KnowYourLimits.Strategies.LeakyBucket
         /// The cost of a request. Defaults to 1.
         /// </summary>
         public long RequestCost { get; set; } = 1;
-        /// <summary>
-        /// A provider of unique identifiers.
-        /// </summary>
-        public IClientIdentityProvider<LeakyBucketClientIdentity> IdentityProvider { get; set; }
     }
 }

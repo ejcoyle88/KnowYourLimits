@@ -12,7 +12,7 @@ namespace KnowYourLimits.UnitTests.Identity
             IdentityToReturn = identityToReturn;
         }
 
-        public TClientIdentity GetIdentityForCurrentRequest()
+        public TClientIdentity GetCurrentIdentity()
         {
             return IdentityToReturn;
         }

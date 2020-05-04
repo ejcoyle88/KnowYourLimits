@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using KnowYourLimits.Configuration;
 using KnowYourLimits.Identity;
 using KnowYourLimits.Strategies;
 using Microsoft.AspNetCore.Http;
@@ -8,30 +9,42 @@ namespace KnowYourLimits.AspNetCore
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     // Instantiated as middleware
-    public class RateLimiterMiddleware<TClientIdentity>
-        where TClientIdentity : IClientIdentity, new()
+    public class RateLimiterMiddleware<TClientIdentity, TConfig, TStrategy>
+        where TClientIdentity : class, IClientIdentity, new()
+        where TConfig : BaseRateLimitConfiguration
+        where TStrategy : class, IRateLimitStrategy<TClientIdentity, TConfig>, new()
     {
         private readonly RequestDelegate _next;
-        private readonly IRateLimitStrategy<TClientIdentity> _rateLimitStrategy;
+        private readonly IConfigurationProvider<TConfig> _configurationProvider;
+        private readonly IClientIdentityProvider<TClientIdentity> _identityProvider;
+        private readonly TStrategy _strategy = new TStrategy();
 
-        public RateLimiterMiddleware(RequestDelegate next, IRateLimitStrategy<TClientIdentity> rateLimitStrategy)
+        public RateLimiterMiddleware(RequestDelegate next,
+            IConfigurationProvider<TConfig> configurationProvider,
+            IClientIdentityProvider<TClientIdentity> identityProvider)
         {
             _next = next;
-            _rateLimitStrategy = rateLimitStrategy;
+            _configurationProvider = configurationProvider;
+            _identityProvider = identityProvider;
         }
 
         // ReSharper disable once UnusedMember.Global
         // Called by the runtime
         public async Task Invoke(HttpContext context)
         {
-            if (_rateLimitStrategy.IdentityProvider is IHttpContextIdentityProvider<TClientIdentity> provider)
+            var config = _configurationProvider.GetConfiguration(context);
+            // If there's no matching configuration, let the request through.
+            if (config == null)
             {
-                provider.Context = context;
+                await _next(context);
+                return;
             }
 
-            if (_rateLimitStrategy.ShouldAddHeaders())
+            var identity = _identityProvider.GetCurrentIdentity();
+            
+            if (_strategy.ShouldAddHeaders(config))
             {
-                var headers = _rateLimitStrategy.GetResponseHeaders();
+                var headers = _strategy.GetResponseHeaders(identity, config);
                 context.Response.OnStarting(() =>
                 {
                     foreach (var header in headers)
@@ -43,14 +56,15 @@ namespace KnowYourLimits.AspNetCore
                 });
             }
 
-            async Task OnHasRequestsRemaining() => await _next(context);
-
-            // ReSharper disable once ImplicitlyCapturedClosure
-#pragma warning disable 1998
-            async Task OnNoRequestsRemaining() => context.Response.StatusCode = 429;
-#pragma warning restore 1998
-
-            await _rateLimitStrategy.OnRequest(OnHasRequestsRemaining, OnNoRequestsRemaining);
+            if (_strategy.HasRemainingAllowance(identity, config))
+            {
+                _strategy.ReduceAllowanceBy(identity, config);
+                await _next(context);
+            }
+            else
+            {
+                context.Response.StatusCode = 429;
+            }
         }
     }
 }

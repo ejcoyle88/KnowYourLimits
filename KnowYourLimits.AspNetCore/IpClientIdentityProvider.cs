@@ -1,26 +1,26 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using KnowYourLimits.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 
 namespace KnowYourLimits.AspNetCore
 {
-    public class IpClientIdentityProvider<TClientIdentity> : IHttpContextIdentityProvider<TClientIdentity>
+    public class IpClientIdentityProvider<TClientIdentity> : IClientIdentityProvider<TClientIdentity>
         where TClientIdentity : IClientIdentity, new()
     {
+        private readonly IHttpContextAccessor _contextAccessor;
         private readonly ConcurrentDictionary<string, TClientIdentity> _clientIdentities =
             new ConcurrentDictionary<string, TClientIdentity>();
 
-        public HttpContext Context { get; set; }
-        public TClientIdentity GetIdentityForCurrentRequest()
+        public IpClientIdentityProvider(IHttpContextAccessor contextAccessor)
         {
-            if (Context == null)
-            {
-                throw new ArgumentException(nameof(Context));
-            }
+            _contextAccessor = contextAccessor;
+        }
 
-            var httpConnectionFeature = Context.Features.Get<IHttpConnectionFeature>();
+        public TClientIdentity GetCurrentIdentity()
+        {
+            var context = _contextAccessor.HttpContext;
+            var httpConnectionFeature = context.Features.Get<IHttpConnectionFeature>();
             var userHostAddress = httpConnectionFeature?.RemoteIpAddress.ToString() ?? "";
 
             if (_clientIdentities.ContainsKey(userHostAddress))

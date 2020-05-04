@@ -16,6 +16,8 @@ ProjectSection(SolutionItems) = preProject
 	LICENSE = LICENSE
 EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KnowYourLimits.AspNetCore.Example", "KnowYourLimits.AspNetCore.Example\KnowYourLimits.AspNetCore.Example.csproj", "{A54FEE3A-902D-4293-A17C-ED1CCB8640B2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,11 +36,18 @@ Global
 		{D8B3BB5F-AB4F-4CF2-84C5-2439BB8546CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8B3BB5F-AB4F-4CF2-84C5-2439BB8546CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8B3BB5F-AB4F-4CF2-84C5-2439BB8546CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A54FEE3A-902D-4293-A17C-ED1CCB8640B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A54FEE3A-902D-4293-A17C-ED1CCB8640B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A54FEE3A-902D-4293-A17C-ED1CCB8640B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A54FEE3A-902D-4293-A17C-ED1CCB8640B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {57E1704E-B897-4BC5-9664-B304720BDADE}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A54FEE3A-902D-4293-A17C-ED1CCB8640B2} = {AEB63280-2D5C-4A2C-BC2D-A2D7AC6F3871}
 	EndGlobalSection
 EndGlobal
