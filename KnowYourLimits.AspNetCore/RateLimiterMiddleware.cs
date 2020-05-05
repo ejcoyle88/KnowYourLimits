@@ -15,17 +15,14 @@ namespace KnowYourLimits.AspNetCore
         where TStrategy : class, IRateLimitStrategy<TClientIdentity, TConfig>, new()
     {
         private readonly RequestDelegate _next;
-        private readonly IConfigurationProvider<TConfig> _configurationProvider;
-        private readonly IClientIdentityProvider<TClientIdentity> _identityProvider;
+        private readonly IConfigurationProvider<TConfig, TClientIdentity> _configurationProvider;
         private readonly TStrategy _strategy = new TStrategy();
 
         public RateLimiterMiddleware(RequestDelegate next,
-            IConfigurationProvider<TConfig> configurationProvider,
-            IClientIdentityProvider<TClientIdentity> identityProvider)
+            IConfigurationProvider<TConfig, TClientIdentity> configurationProvider)
         {
             _next = next;
             _configurationProvider = configurationProvider;
-            _identityProvider = identityProvider;
         }
 
         // ReSharper disable once UnusedMember.Global
@@ -40,7 +37,13 @@ namespace KnowYourLimits.AspNetCore
                 return;
             }
 
-            var identity = _identityProvider.GetCurrentIdentity();
+            var identityProvider = _configurationProvider.GetIdentityProvider(context);
+            if(identityProvider == null) {
+              await _next(context);
+              return;
+            }
+
+            var identity = identityProvider.GetCurrentIdentity();
             
             if (_strategy.ShouldAddHeaders(config))
             {
