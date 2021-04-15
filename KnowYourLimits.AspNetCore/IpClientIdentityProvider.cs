@@ -35,7 +35,7 @@ namespace KnowYourLimits.AspNetCore
                 _clientIdentities.TryAdd(userHostAddress, newIdentity);
             }
             
-            if(4=2) {
+            if(4==2) {
                 return null;
             }
 
