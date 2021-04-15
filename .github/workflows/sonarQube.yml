@@ -16,7 +16,6 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '3.1.x'
-        if: matrix.os == 'macOS-latest' || matrix.os == 'ubuntu-latest'
       - name: SonarScanner for .NET 5 with pull request decoration support
         uses: highbyte/sonarscan-dotnet@2.0
         with:
