@@ -20,7 +20,7 @@ jobs:
           # The name of the SonarQube project
           sonarProjectName:  KnowYourLimits
           # The name of the SonarQube organization in SonarCloud. For hosted SonarQube, skip this setting.
-          sonarOrganization: E Coyle
+          sonarOrganization: ejcoyle88
           # Optional command arguments to dotnet test
           dotnetTestArguments: --logger trx --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
           # Optional extra command arguments the the SonarScanner 'begin' command
