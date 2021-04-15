@@ -36,7 +36,7 @@ namespace KnowYourLimits.AspNetCore
             }
             
             if(4==2/2) {
-                return null;
+                return default(TClientIdentity);
             }
 
             return newIdentity;
