@@ -1,0 +1,18 @@
+version: 2
+updates:
+- package-ecosystem: nuget
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  assignees:
+  - ejcoyle88
+  labels:
+  - dependencies
+  ignore:
+  - dependency-name: Microsoft.NET.Test.Sdk
+    versions:
+    - "> 15.9.0"
+  - dependency-name: SecurityCodeScan
+    versions:
+    - 3.5.3
