@@ -1,5 +1,8 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ae41feded6fa467bb9d6b715a1604ac5)](https://www.codacy.com/manual/ejcoyle88/KnowYourLimits?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ejcoyle88/KnowYourLimits&amp;utm_campaign=Badge_Grade) [![NuGet](https://img.shields.io/nuget/dt/KnowYourLimits.AspNetCore.svg)](https://www.nuget.org/packages/KnowYourLimits.AspNetCore)
 
+# Deprecation Notice
+This library is now unsupported and unmaintained. Your best bet is probably to use the rate limiting libraries from Microsoft directly now. [Link](https://learn.microsoft.com/en-us/aspnet/core/performance/rate-limit?view=aspnetcore-7.0)
+
 # KnowYourLimits
 A rate limiting library for .Net projects.
 
